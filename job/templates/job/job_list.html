@@ -1,0 +1,407 @@
+{% extends 'base.html' %}
+{% load bootstrap4 %}
+{% block body %}        
+    <!-- bradcam_area  -->
+    <div class="bradcam_area bradcam_bg_1">
+        <div class="container">
+            <div class="row">
+                <div class="col-xl-12">
+                    <div class="bradcam_text">
+                        <h3>{{jobs.count}}+ Jobs Available</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--/ bradcam_area  -->
+
+    <!-- job_listing_area_start  -->
+    <div class="job_listing_area plus_padding">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3">
+                    <div class="job_filter white-bg">
+                        <div class="form_inner white-bg">
+                            <div class="filter-header">
+                                <h3><i class="fa fa-filter"></i> Filter Jobs</h3>
+                            </div>
+                            <form method="GET" class="filter-form">
+                                {% for field in myfilter.form %}
+                                    <div class="form-group filter-field">
+                                        <label for="{{ field.id_for_label }}" class="filter-label">
+                                            {% if field.name == 'title' %}
+                                                <i class="fa fa-search"></i> Job Title
+                                            {% elif field.name == 'location' %}
+                                                <i class="fa fa-map-marker"></i> Location
+                                            {% elif field.name == 'category' %}
+                                                <i class="fa fa-briefcase"></i> Category
+                                            {% elif field.name == 'job_type' %}
+                                                <i class="fa fa-clock-o"></i> Job Type
+                                            {% elif field.name == 'salary_min' %}
+                                                <i class="fa fa-money"></i> Min Salary
+                                            {% elif field.name == 'salary_max' %}
+                                                <i class="fa fa-money"></i> Max Salary
+                                            {% else %}
+                                                {{ field.label }}
+                                            {% endif %}
+                                        </label>
+                                        {% if field.field.widget.input_type == 'select' %}
+                                            <div class="select-wrapper">
+                                                <select name="{{ field.name }}" id="{{ field.id_for_label }}" class="form-control custom-select">
+                                                    {% for choice in field.field.choices %}
+                                                        <option value="{{ choice.0 }}" {% if choice.0 == field.value %}selected{% endif %}>{{ choice.1 }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                                <i class="fa fa-chevron-down select-arrow"></i>
+                                            </div>
+                                        {% else %}
+                                            <div class="input-wrapper">
+                                                {{ field }}
+                                                {% if field.name == 'title' %}
+                                                    <i class="fa fa-search input-icon"></i>
+                                                {% elif field.name == 'salary_min' or field.name == 'salary_max' %}
+                                                    <i class="fa fa-dollar input-icon"></i>
+                                                {% endif %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                                <div class="filter-actions">
+                                    <button type="submit" class="btn btn-primary filter-btn">
+                                        <i class="fa fa-search"></i> Search Jobs
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-9">
+                    <div class="recent_joblist_wrap">
+                        <div class="recent_joblist white-bg ">
+                            <div class="row align-items-center">
+                                <div class="col-md-6">
+                                    <h4>Job Listing</h4>
+                                </div>
+                                <div class="col-md-6">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="job_lists m-0">
+                        <div class="row">
+                           {% for job in jobs %}
+                            <div class="col-lg-12 col-md-12">
+                                <div class="single_jobs white-bg d-flex justify-content-between {% if job.is_featured %}featured-job{% endif %}">
+                                    <div class="jobs_left d-flex align-items-center">
+                                        <div class="thumb" style="margin-right: 20px; width: 120px; height: 120px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                                            {% if job.image %}
+                                                <img src="{{ job.image.url }}" alt="{{ job.company_name }}" style="width: 100%; height: 100%; object-fit: contain;">
+                                            {% else %}
+                                                <div style="width: 100%; height: 100%; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center;">
+                                                    <i class="fa fa-building" style="font-size: 45px; color: #999;"></i>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="jobs_conetent">
+                                            <a href="{% url 'jobs:job_detail' job.slug %}">
+                                                <h4>
+                                                    {{job.title}}
+                                                    {% if job.is_featured %}
+                                                        <span class="featured-badge" style="background-color: #ffd700; color: #000; padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-left: 8px;">Featured</span>
+                                                    {% endif %}
+                                                </h4>
+                                            </a>
+                                            <div class="links_locat d-flex align-items-center">
+                                                <div class="location">
+                                                    <p> <i class="fa fa-map-marker"></i> {{job.location}}</p>
+                                                </div>
+                                                <div class="location">
+                                                    <p> <i class="fa fa-clock-o"></i> {{job.job_type}}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="jobs_right">
+                                        <div class="apply_now">
+                                            {% if user.is_authenticated %}
+                                                <a class="heart_mark wishlist-btn" href="#" data-job-id="{{ job.id }}" data-csrf-token="{{ csrf_token }}">
+                                                    <i class="fa fa-heart {% if job.id in user_saved_jobs %}text-danger{% endif %}"></i>
+                                                </a>
+                                            {% else %}
+                                                <a class="heart_mark" href="{% url 'accounts:login' %}">
+                                                    <i class="fa fa-heart"></i>
+                                                </a>
+                                            {% endif %}
+                                            <a href="{% url 'jobs:job_detail' job.slug %}" class="boxed-btn3">Apply Now</a>
+                                        </div>
+                                        <div class="date">
+                                            <p>Date line: {{job.published_at|date:'d M o'}}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        
+                        {% if jobs.has_other_pages %}   
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="pagination_wrap">
+                                        <ul>
+                                            
+                                            {% if jobs.has_previous %}
+                                                <li><a href="?page={{jobs.previous_page_number}}"> <i class="ti-angle-left"></i> </a></li>
+                                            {% endif %}
+
+                                            {% for i in jobs.paginator.page_range %}
+                                                <li><a href="?page={{i}}"><span>{{i}}</span></a></li>
+                                            {% endfor %}
+                                            
+
+
+                                            {% if jobs.has_next %}
+                                                <li><a href="?page={{jobs.next_page_number}}"> <i class="ti-angle-right"></i> </a></li>
+                                            {% endif %}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- job_listing_area_end  -->
+
+    <style>
+        .featured-job {
+            border: 4px solid #ffd700;
+            box-shadow: 0 4px 8px rgba(255, 215, 0, 0.3);
+            margin: 2px;
+            border-radius: 8px;
+        }
+        .featured-badge {
+            display: inline-block;
+            vertical-align: middle;
+            font-weight: bold;
+        }
+
+        /* Enhanced Filter Styling */
+        .job_filter {
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e9ecef;
+        }
+
+        .filter-header {
+            background: white;
+            color: #333;
+            padding: 15px 20px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .filter-header h3 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .filter-header h3 i {
+            margin-right: 8px;
+            color: #00D363;
+        }
+
+        .filter-header p {
+            margin: 5px 0 0 0;
+            color: #6c757d;
+            font-size: 13px;
+        }
+
+        .form_inner {
+            padding: 20px;
+        }
+
+        .filter-form {
+            margin: 0;
+        }
+
+        .filter-field {
+            margin-bottom: 15px;
+        }
+
+        .filter-label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+
+        .filter-label i {
+            margin-right: 6px;
+            color: #00D363;
+            width: 14px;
+        }
+
+        .select-wrapper {
+            position: relative;
+        }
+
+        .custom-select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 8px 30px 8px 12px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+            cursor: pointer;
+        }
+
+        .custom-select:focus {
+            outline: none;
+            border-color: #00D363;
+        }
+
+        .select-arrow {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+            pointer-events: none;
+            font-size: 12px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper input {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 8px 30px 8px 12px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+            width: 100%;
+        }
+
+        .input-wrapper input:focus {
+            outline: none;
+            border-color: #00D363;
+        }
+
+        .input-icon {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+            pointer-events: none;
+            font-size: 12px;
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .filter-btn {
+            flex: 1;
+            background: #00D363;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 15px;
+            font-weight: 600;
+            color: white;
+            transition: background-color 0.3s ease;
+        }
+
+        .filter-btn:hover {
+            background: #00b352;
+            color: white;
+        }
+
+        .clear-btn {
+            flex: 1;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px 15px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            color: #6c757d;
+            background: white;
+        }
+
+        .clear-btn:hover {
+            border-color: #6c757d;
+            background: #6c757d;
+            color: white;
+            text-decoration: none;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 991px) {
+            .filter-actions {
+                flex-direction: column;
+            }
+            
+            .filter-btn, .clear-btn {
+                flex: none;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .form_inner {
+                padding: 15px;
+            }
+            
+            .filter-header {
+                padding: 12px 15px;
+            }
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle wishlist button clicks
+            document.querySelectorAll('.wishlist-btn').forEach(function(btn) {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const jobId = this.getAttribute('data-job-id');
+                    const csrfToken = this.getAttribute('data-csrf-token');
+                    const heartIcon = this.querySelector('i');
+                    
+                    fetch(`/jobs/wishlist/toggle/${jobId}/`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrfToken,
+                            'Content-Type': 'application/json',
+                        },
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            // Toggle the heart icon appearance
+                            if (heartIcon.classList.contains('text-danger')) {
+                                heartIcon.classList.remove('text-danger');
+                            } else {
+                                heartIcon.classList.add('text-danger');
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+                });
+            });
+        });
+    </script>
+{% endblock body %}

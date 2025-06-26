@@ -1,0 +1,542 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block body %}
+<style>
+    body {
+        background-color: #f0f8ff;
+    }
+    .profile-header {
+        position: relative;
+        background: #1e88e5;
+        padding: 60px 0;
+        margin-bottom: 30px;
+        border-bottom: 1px solid #eee;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        color: #fff;
+    }
+    .profile-picture {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        border: 4px solid #fff;
+        object-fit: cover;
+        box-shadow: 0 0 12px rgba(0,0,0,0.2);
+    }
+    .profile-info {
+        margin-top: 20px;
+        padding: 0 30px;
+    }
+    .profile-name {
+        font-size: 28px;
+        font-weight: bold;
+        margin-bottom: 8px;
+        color: #fff;
+    }
+    .profile-bio {
+        color: #e3f2fd;
+        margin-bottom: 25px;
+        font-size: 16px;
+        line-height: 1.5;
+    }
+    .profile-content {
+        padding: 0 50px;
+    }
+    .card {
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        border: none;
+        margin-bottom: 20px;
+    }
+    .card-header {
+        background: #fff;
+        border-bottom: 1px solid #eee;
+        padding: 15px 20px;
+    }
+    .card-header h5 {
+        margin: 0;
+        color: #1A1A1A;
+    }
+    .card-body {
+        padding: 20px;
+    }
+    .stats-card {
+        background: #fff;
+        border-radius: 10px;
+        padding: 25px;
+        text-align: center;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        transition: all 0.3s;
+    }
+    .stats-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    .stats-number {
+        font-size: 32px;
+        font-weight: 700;
+        color: #1e88e5;
+        margin-bottom: 10px;
+    }
+    .stats-label {
+        color: #666;
+        font-size: 16px;
+        font-weight: 500;
+    }
+    .job-card {
+        border: 1px solid #eee;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 15px;
+        transition: all 0.3s;
+    }
+    .job-card:hover {
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .job-status {
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-size: 14px;
+    }
+    .status-active {
+        background-color: #d4edda;
+        color: #155724;
+    }
+    .status-inactive {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+    .application-item {
+        border-bottom: 1px solid #eee;
+        padding: 15px 0;
+    }
+    .application-item:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+    .application-item h6 {
+        color: #2c3e50;
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+    .boxed-btn3 {
+        background: #1A1A1A;
+        color: #fff;
+        padding: 10px 30px;
+        border-radius: 5px;
+        text-decoration: none;
+        transition: all 0.3s;
+    }
+    .boxed-btn3:hover {
+        background: #333;
+        color: #fff;
+    }
+    .btn-primary {
+        background-color: #1e88e5;
+        border-color: #1e88e5;
+    }
+    .btn-primary:hover {
+        background-color: #1976d2;
+        border-color: #1976d2;
+    }
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+    }
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1050;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.5);
+    }
+    .modal-dialog {
+        position: relative;
+        width: auto;
+        margin: 1.75rem auto;
+        max-width: 800px;
+    }
+    .modal-content {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        background-color: #fff;
+        border: 1px solid rgba(0,0,0,.2);
+        border-radius: .3rem;
+        outline: 0;
+    }
+    .modal-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        padding: 1rem;
+        border-bottom: 1px solid #dee2e6;
+        border-top-left-radius: .3rem;
+        border-top-right-radius: .3rem;
+    }
+    .modal-body {
+        position: relative;
+        flex: 1 1 auto;
+        padding: 1rem;
+    }
+    .modal-footer {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        padding: 1rem;
+        border-top: 1px solid #dee2e6;
+    }
+    .modal-backdrop {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 1040;
+        background-color: #000;
+    }
+    .modal-backdrop.fade {
+        opacity: 0;
+    }
+    .modal-backdrop.show {
+        opacity: 0.5;
+    }
+    .modal.fade .modal-dialog {
+        transition: transform .3s ease-out;
+        transform: translate(0,-50px);
+    }
+    .modal.show .modal-dialog {
+        transform: none;
+    }
+    /* Add some styling for the integrated company info in the header */
+    .profile-header .company-info-list {
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid rgba(255,255,255,0.3);
+        list-style: none;
+        padding-left: 0;
+    }
+    .profile-header .company-info-list li {
+        color: #e3f2fd;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+    }
+    .profile-header .company-info-list li i {
+        margin-right: 10px;
+        color: #ffffff;
+        width: 20px;
+    }
+    .profile-header .company-info-list li strong {
+        color: #ffffff;
+        margin-right: 5px;
+    }
+    .profile-header .boxed-btn3 {
+        margin-top: 20px;
+        display: inline-block;
+        background-color: #28a745;
+        color: #ffffff;
+        border: 1px solid #28a745;
+        padding: 8px 25px;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+    }
+    .profile-header .boxed-btn3:hover {
+        background-color: #218838;
+        color: #ffffff;
+        border-color: #218838;
+    }
+</style>
+
+<div class="profile-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-2 text-center text-md-left">
+                {% if profile.image %}
+                    <img src="{{ profile.image.url }}" class="profile-picture" alt="Profile Picture">
+                {% else %}
+                    <img src="{% static 'img/default-profile.jpg' %}" class="profile-picture" alt="Default Profile">
+                {% endif %}
+            </div>
+            <div class="col-md-10 mt-3 mt-md-0">
+                <h1 class="profile-name">{{ profile.user.username }}</h1>
+                <p class="profile-bio">{{ profile.bio|default:"No bio yet" }}</p>
+
+                <!-- Company Information integrated into the header -->
+                <ul class="list-unstyled company-info-list">
+                    <li><i class="fa fa-envelope"></i><strong>Email:</strong> {{ profile.user.email }}</li>
+                    <li><i class="fa fa-phone"></i><strong>Phone:</strong> {{ profile.phone_number|default:"Not provided" }}</li>
+                    <li><i class="fa fa-map-marker"></i><strong>Location:</strong> {{ profile.city|default:"Not provided" }}</li>
+                    <li><i class="fa fa-user"></i><strong>User Type:</strong> {{ profile.user_type|title }}</li>
+                </ul>
+                <a href="{% url 'accounts:profile_edit' %}" class="boxed-btn3">Edit Profile</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="profile-content">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <div class="stats-number">{{ jobs.count }}</div>
+                    <div class="stats-label">Total Jobs</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <div class="stats-number">{{ active_jobs_count }}</div>
+                    <div class="stats-label">Active Jobs</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <div class="stats-number">{{ total_applications }}</div>
+                    <div class="stats-label">Total Applications</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <div class="stats-number">{{ new_applications }}</div>
+                    <div class="stats-label">New Applications</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container mt-4">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5>Your Job Postings</h5>
+                            <a href="{% url 'job:add_job' %}" class="btn btn-primary">Post New Job</a>
+                        </div>
+                        <div class="card-body">
+                            {% if jobs %}
+                                {% for job in jobs %}
+                                    <div class="job-card">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <h5>{{ job.title }}</h5>
+                                                <p class="text-muted">{{ job.location }}</p>
+                                            </div>
+                                            <span class="job-status status-{% if job.is_active %}active{% else %}inactive{% endif %}">
+                                                {% if job.is_active %}Active{% else %}Inactive{% endif %}
+                                            </span>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center mt-3">
+                                            <div>
+                                                <span class="text-muted">Applications: {{ job.apply_job.count }}</span>
+                                            </div>
+                                            <div>
+                                                <a href="{% url 'job:job_detail' job.slug %}" class="btn btn-sm btn-primary">View Details</a>
+                                                <a href="{% url 'job:edit_job' job.id %}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <p class="text-muted">You haven't posted any jobs yet.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>Recent Applications</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if recent_applications %}
+                                {% for application in recent_applications %}
+                                    <div class="application-item">
+                                        <h6>{{ application.job.title }}</h6>
+                                        <p class="mb-1">{{ application.name }}</p>
+                                        <small class="text-muted">Applied {{ application.created_at|timesince }} ago</small>
+                                        <div class="mt-2">
+                                            <button type="button" class="btn btn-sm btn-primary view-application" data-toggle="modal" data-target="#applicationModal"
+                                                data-name="{{ application.name }}"
+                                                data-email="{{ application.email }}"
+                                                data-website="{{ application.website|default:'' }}"
+                                                data-status="{{ application.status }}"
+                                                data-applied="{{ application.created_at|date:'F d, Y' }}"
+                                                data-cover-letter="{{ application.cover_letter }}"
+                                                data-cv-url="{{ application.cv.url }}">
+                                                View Application
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-success ml-2 set-interview-btn" data-toggle="modal" data-target="#setInterviewModal" data-application-id="{{ application.id }}" data-applicant-name="{{ application.name }}">Set Interview</button>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <p class="text-muted">No recent applications</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Application Details Modal -->
+<div class="modal fade" id="applicationModal" tabindex="-1" role="dialog" aria-labelledby="applicationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="applicationModalLabel">Application Details</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Applicant Information</h6>
+                        <p><strong>Name:</strong> <span id="modalName"></span></p>
+                        <p><strong>Email:</strong> <span id="modalEmail"></span></p>
+                        <p><strong>Website:</strong> <span id="modalWebsite"></span></p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Application Status</h6>
+                        <p><strong>Status:</strong> <span id="modalStatus"></span></p>
+                        <p><strong>Applied:</strong> <span id="modalApplied"></span></p>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <h6>Cover Letter</h6>
+                        <div id="modalCoverLetter" class="p-3 bg-light rounded"></div>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <h6>Resume/CV</h6>
+                        <a id="modalCV" href="#" target="_blank" class="btn btn-sm btn-primary">Download CV</a>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Set Interview Modal -->
+<div class="modal fade" id="setInterviewModal" tabindex="-1" role="dialog" aria-labelledby="setInterviewModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="setInterviewModalLabel">Set Interview Appointment for <span id="modalApplicantName"></span></h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form id="setInterviewForm">
+        <div class="modal-body">
+          <input type="hidden" name="application_id" id="modalApplicationId">
+          <div class="form-group">
+            <label for="interviewDate">Date</label>
+            <input type="date" class="form-control" id="interviewDate" name="date" required>
+          </div>
+          <div class="form-group">
+            <label for="interviewTime">Time</label>
+            <input type="time" class="form-control" id="interviewTime" name="time" required>
+          </div>
+          <div class="form-group">
+            <label for="interviewLocation">Location</label>
+            <input type="text" class="form-control" id="interviewLocation" name="location" required>
+          </div>
+          <div class="form-group">
+            <label for="interviewNotes">Notes</label>
+            <textarea class="form-control" id="interviewNotes" name="notes" rows="2"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-success">Set Appointment</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+<!-- No footer in dashboard -->
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    $('.view-application').on('click', function(e) {
+        e.preventDefault();
+        var button = $(this);
+        // Log all data attributes for debugging
+        console.log('Name:', button.data('name'));
+        console.log('Email:', button.data('email'));
+        console.log('Website:', button.data('website'));
+        console.log('Status:', button.data('status'));
+        console.log('Applied:', button.data('applied'));
+        console.log('Cover Letter:', button.data('cover-letter'));
+        console.log('CV URL:', button.data('cv-url'));
+        $('#modalName').text(button.data('name'));
+        $('#modalEmail').text(button.data('email'));
+        $('#modalWebsite').text(button.data('website') || 'Not provided');
+        $('#modalStatus').text(button.data('status'));
+        $('#modalApplied').text(button.data('applied'));
+        $('#modalCoverLetter').text(button.data('cover-letter'));
+        $('#modalCV').attr('href', button.data('cv-url'));
+        $('#applicationModal').modal('show');
+    });
+});
+
+// Fill modal with application info
+$(document).on('click', '.set-interview-btn', function() {
+    var applicationId = $(this).data('application-id');
+    var applicantName = $(this).data('applicant-name');
+    $('#modalApplicationId').val(applicationId);
+    $('#modalApplicantName').text(applicantName);
+});
+
+// Use meta tag for CSRF token
+var csrftoken = $('meta[name="csrf-token"]').attr('content');
+
+// AJAX form submission
+$('#setInterviewForm').on('submit', function(e) {
+    e.preventDefault();
+    var applicationId = $('#modalApplicationId').val();
+    var formData = $(this).serialize();
+    $.ajax({
+        url: '/jobs/set-interview/' + applicationId + '/',
+        type: 'POST',
+        data: formData,
+        headers: { 'X-CSRFToken': csrftoken },
+        success: function(response) {
+            $('#setInterviewModal').modal('hide');
+            alert('Interview appointment set successfully!');
+            location.reload();
+        },
+        error: function(xhr) {
+            if (xhr.responseJSON && xhr.responseJSON.errors) {
+                let errorMsg = 'Error setting interview appointment:\n';
+                for (let field in xhr.responseJSON.errors) {
+                    errorMsg += field + ': ' + xhr.responseJSON.errors[field].join(', ') + '\n';
+                }
+                alert(errorMsg);
+            } else {
+                alert('Error setting interview appointment.');
+            }
+        }
+    });
+});
+</script>
+{% endblock %} 

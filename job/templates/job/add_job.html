@@ -1,0 +1,381 @@
+{% extends 'base.html' %}
+{% load bootstrap4 %}
+
+{% block body %} 
+    <!-- bradcam_area  -->
+    <div class="bradcam_area bradcam_bg_1">
+        <div class="container">
+            <div class="row">
+                <div class="col-xl-12">
+                    <div class="bradcam_text">
+                        <h3>Add New Job</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--/ bradcam_area  -->
+
+    <div class="job_details_area">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-10 mx-auto">
+                    <div class="apply_job_form white-bg">
+                        <h4>Post New Job</h4>
+                        <form method="POST" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            
+                            <!-- Basic Information -->
+                            <div class="mb-4">
+                                <h5>Basic Information</h5>
+                                {% bootstrap_field form.title %}
+                                {% bootstrap_field form.company_name %}
+                                {% bootstrap_field form.company_description %}
+                                {% bootstrap_field form.location %}
+                                {% bootstrap_field form.job_type %}
+                                {% bootstrap_field form.job_level %}
+                                {% bootstrap_field form.category %}
+                            </div>
+
+                            <!-- Job Details -->
+                            <div class="mb-4">
+                                <h5>Job Details</h5>
+                                {% bootstrap_field form.description %}
+                                {% bootstrap_field form.requirements %}
+                                {% bootstrap_field form.responsibilities %}
+                            </div>
+
+                            <!-- Requirements -->
+                            <div class="mb-4">
+                                <h5>Requirements</h5>
+                                {% bootstrap_field form.vacancy %}
+                                {% bootstrap_field form.salary %}
+                                {% bootstrap_field form.experience_min %}
+                                {% bootstrap_field form.experience_max %}
+                                
+                                <!-- Enhanced Skills Section -->
+                                <div class="form-group">
+                                    <label for="skill_name">Required Skills</label>
+                                    <div class="skills-container">
+                                        <div class="position-relative">
+                                            <input type="text" class="form-control" id="skill_name" 
+                                                   placeholder="Type to search skills..." 
+                                                   autocomplete="off">
+                                            <div id="skills_dropdown" class="suggestions-list">
+                                                <!-- Skills suggestions will appear here -->
+                                            </div>
+                                        </div>
+                                        <div id="skills_list" class="skills-tags mt-3">
+                                            <!-- Skills will be added here dynamically -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Additional Information -->
+                            <div class="mb-4">
+                                <h5>Additional Information</h5>
+                                {% bootstrap_field form.image %}
+                                {% bootstrap_field form.is_featured %}
+                                {% bootstrap_field form.is_active %}
+                            </div>
+
+                            {% buttons %}
+                                <button class="boxed-btn3 w-100" type="submit">Post Now</button>
+                            {% endbuttons %}
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock body %}
+
+{% block extra_css %}
+<style>
+    .skills-container {
+        position: relative;
+    }
+    
+    .suggestions-list {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        max-height: 300px;
+        overflow-y: auto;
+        z-index: 1000;
+        display: none;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .suggestion-category {
+        padding: 8px 15px;
+        background-color: #f8f9fa;
+        font-weight: 500;
+        border-bottom: 1px solid #dee2e6;
+    }
+    
+    .suggestion-item {
+        padding: 8px 15px;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+    
+    .suggestion-item:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .skills-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        min-height: 40px;
+        padding: 10px;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        background-color: #f8f9fa;
+    }
+    
+    .skill-tag {
+        display: inline-flex;
+        align-items: center;
+        background-color: #e9ecef;
+        border: 1px solid #dee2e6;
+        border-radius: 20px;
+        padding: 6px 12px;
+        transition: all 0.3s ease;
+    }
+    
+    .skill-tag:hover {
+        background-color: #dee2e6;
+        transform: translateY(-1px);
+    }
+    
+    .skill-category {
+        font-size: 0.8em;
+        color: #6c757d;
+        margin-right: 5px;
+    }
+    
+    .remove-skill {
+        background: none;
+        border: none;
+        color: #dc3545;
+        padding: 0;
+        margin-left: 5px;
+        cursor: pointer;
+        opacity: 0.7;
+        transition: opacity 0.3s ease;
+        font-size: 1.1em;
+        line-height: 1;
+    }
+    
+    .remove-skill:hover {
+        opacity: 1;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const skillsList = document.getElementById('skills_list');
+    const skillNameInput = document.getElementById('skill_name');
+    const skillsDropdown = document.getElementById('skills_dropdown');
+    
+    // Categorized skills
+    const categorizedSkills = {
+        'Information Technology': [
+            'Python', 'JavaScript', 'Java', 'C++', 'C#', 'PHP', 'Ruby',
+            'HTML', 'CSS', 'React', 'Angular', 'Vue.js', 'Node.js',
+            'Django', 'Flask', 'Spring', 'Laravel', 'Express.js',
+            'SQL', 'MongoDB', 'PostgreSQL', 'MySQL', 'Redis',
+            'Docker', 'Kubernetes', 'AWS', 'Azure', 'GCP',
+            'Git', 'Linux', 'Agile', 'Scrum', 'DevOps'
+        ],
+        'Marketing & Sales': [
+            'Digital Marketing', 'Social Media Marketing', 'Content Marketing',
+            'SEO', 'SEM', 'Email Marketing', 'Sales', 'Business Development',
+            'Market Research', 'Brand Management', 'CRM'
+        ],
+        'Finance & Accounting': [
+            'Financial Analysis', 'Accounting', 'Bookkeeping', 'Tax Preparation',
+            'Auditing', 'Financial Planning', 'Investment Banking', 'Risk Management',
+            'Budgeting', 'Financial Modeling'
+        ],
+        'Healthcare': [
+            'Medical', 'Nursing', 'Healthcare Administration', 'Patient Care',
+            'Medical Records', 'Healthcare IT', 'Clinical Research', 'Pharmacy',
+            'Medical Billing', 'Healthcare Compliance'
+        ],
+        'Education': [
+            'Teaching', 'Training', 'Educational Administration', 'Curriculum Development',
+            'Student Affairs', 'Educational Technology', 'Special Education',
+            'Academic Advising', 'Educational Research'
+        ],
+        'Engineering': [
+            'Mechanical Engineering', 'Electrical Engineering', 'Civil Engineering',
+            'Software Engineering', 'Chemical Engineering', 'Industrial Engineering',
+            'Aerospace Engineering', 'Biomedical Engineering', 'Robotics'
+        ],
+        'Design & Creative': [
+            'Graphic Design', 'UI/UX Design', 'Web Design', 'Illustration',
+            'Motion Graphics', '3D Modeling', 'Animation', 'Brand Design',
+            'Print Design', 'Digital Art'
+        ],
+        'Customer Service': [
+            'Customer Support', 'Service Management', 'Client Relations',
+            'Technical Support', 'Customer Success', 'Help Desk', 'Call Center',
+            'Customer Experience', 'Account Management'
+        ],
+        'Human Resources': [
+            'HR Management', 'Recruitment', 'Employee Relations', 'Talent Acquisition',
+            'HRIS', 'Benefits Administration', 'Training & Development',
+            'Performance Management', 'HR Analytics'
+        ],
+        'Operations & Logistics': [
+            'Supply Chain', 'Operations Management', 'Logistics', 'Inventory Management',
+            'Procurement', 'Warehouse Management', 'Transportation', 'Quality Control',
+            'Process Improvement'
+        ],
+        'Legal': [
+            'Law', 'Compliance', 'Legal Services', 'Contract Law',
+            'Corporate Law', 'Intellectual Property', 'Employment Law',
+            'Legal Research', 'Paralegal'
+        ],
+        'Research & Science': [
+            'Scientific Research', 'Laboratory Work', 'Data Analysis',
+            'Research Methods', 'Experimental Design', 'Scientific Writing',
+            'Research Management', 'Laboratory Safety'
+        ],
+        'Media & Communications': [
+            'Journalism', 'Public Relations', 'Media Production', 'Content Creation',
+            'Social Media Management', 'Digital Media', 'Broadcasting',
+            'Media Planning', 'Communications Strategy'
+        ],
+        'Hospitality & Tourism': [
+            'Hotels', 'Restaurants', 'Travel Services', 'Event Planning',
+            'Tourism Management', 'Customer Service', 'Food & Beverage',
+            'Guest Relations', 'Hospitality Management'
+        ],
+        'Construction & Real Estate': [
+            'Construction', 'Property Management', 'Real Estate', 'Project Management',
+            'Architecture', 'Interior Design', 'Building Inspection',
+            'Construction Safety', 'Real Estate Development'
+        ]
+    };
+    
+    // Flatten skills for searching
+    const allSkills = Object.entries(categorizedSkills).flatMap(([category, skills]) =>
+        skills.map(skill => ({ category, skill }))
+    );
+    
+    // Populate dropdown with filtered skills
+    function populateSkillsDropdown(filter = '') {
+        skillsDropdown.innerHTML = '';
+        const filteredSkills = allSkills.filter(({ skill }) =>
+            skill.toLowerCase().includes(filter.toLowerCase())
+        );
+        
+        if (filteredSkills.length > 0) {
+            // Group by category
+            const groupedSkills = filteredSkills.reduce((acc, { category, skill }) => {
+                if (!acc[category]) acc[category] = [];
+                acc[category].push(skill);
+                return acc;
+            }, {});
+            
+            // Create dropdown content
+            Object.entries(groupedSkills).forEach(([category, skills]) => {
+                const categoryDiv = document.createElement('div');
+                categoryDiv.className = 'suggestion-category';
+                categoryDiv.textContent = category;
+                skillsDropdown.appendChild(categoryDiv);
+                
+                skills.forEach(skill => {
+                    const div = document.createElement('div');
+                    div.className = 'suggestion-item';
+                    div.textContent = skill;
+                    div.onclick = () => addSkill(skill, category);
+                    skillsDropdown.appendChild(div);
+                });
+            });
+            
+            skillsDropdown.style.display = 'block';
+        } else {
+            skillsDropdown.style.display = 'none';
+        }
+    }
+    
+    // Add a skill to the list
+    function addSkill(skillName, category) {
+        // Check if skill already exists
+        const existingSkills = Array.from(skillsList.children).map(tag => 
+            tag.querySelector('.skill-name').textContent
+        );
+        
+        if (!existingSkills.includes(skillName)) {
+            const skillTag = document.createElement('div');
+            skillTag.className = 'skill-tag';
+            skillTag.innerHTML = `
+                <span class="skill-category">${category}</span>
+                <span class="skill-name">${skillName}</span>
+                <button type="button" class="remove-skill" title="Remove skill">×</button>
+                <input type="hidden" name="skills[]" value="${skillName}|${category}">
+            `;
+            
+            skillsList.appendChild(skillTag);
+            
+            // Clear input and hide dropdown
+            skillNameInput.value = '';
+            skillsDropdown.style.display = 'none';
+        }
+    }
+    
+    // Handle skill input
+    skillNameInput.addEventListener('input', function() {
+        const value = this.value.trim();
+        if (value) {
+            populateSkillsDropdown(value);
+        } else {
+            skillsDropdown.style.display = 'none';
+        }
+    });
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!skillNameInput.contains(e.target) && !skillsDropdown.contains(e.target)) {
+            skillsDropdown.style.display = 'none';
+        }
+    });
+    
+    // Handle skill removal
+    skillsList.addEventListener('click', function(e) {
+        if (e.target.classList.contains('remove-skill')) {
+            e.target.closest('.skill-tag').remove();
+        }
+    });
+    
+    // Handle Enter key in skill input
+    skillNameInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const value = this.value.trim();
+            if (value) {
+                // Find the first matching skill
+                const matchingSkill = allSkills.find(({ skill }) =>
+                    skill.toLowerCase() === value.toLowerCase()
+                );
+                if (matchingSkill) {
+                    addSkill(matchingSkill.skill, matchingSkill.category);
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

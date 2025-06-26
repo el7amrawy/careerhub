@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load bootstrap4 %}
+
+{% block body %} 
+    <!-- bradcam_area  -->
+    <div class="bradcam_area bradcam_bg_1">
+        <div class="container">
+            <div class="row">
+                <div class="col-xl-12">
+                    <div class="bradcam_text">
+                        <h3>Edit Job: {{ job.title }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--/ bradcam_area  -->
+
+    <div class="job_details_area">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-10 mx-auto">
+                    <div class="apply_job_form white-bg">
+                        <h4>Edit Job Details</h4>
+                        <form method="POST" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            
+                            <!-- Basic Information -->
+                            <div class="mb-4">
+                                <h5>Basic Information</h5>
+                                {% bootstrap_field form.title %}
+                                {% bootstrap_field form.company_name %}
+                                {% bootstrap_field form.company_description %}
+                                {% bootstrap_field form.location %}
+                                {% bootstrap_field form.job_type %}
+                                {% bootstrap_field form.job_level %}
+                                {% bootstrap_field form.category %}
+                            </div>
+
+                            <!-- Job Details -->
+                            <div class="mb-4">
+                                <h5>Job Details</h5>
+                                {% bootstrap_field form.description %}
+                                {% bootstrap_field form.requirements %}
+                                {% bootstrap_field form.responsibilities %}
+                            </div>
+
+                            <!-- Requirements -->
+                            <div class="mb-4">
+                                <h5>Requirements</h5>
+                                {% bootstrap_field form.vacancy %}
+                                {% bootstrap_field form.salary %}
+                                {% bootstrap_field form.experience_min %}
+                                {% bootstrap_field form.experience_max %}
+                                {% bootstrap_field form.skills %}
+                            </div>
+
+                            <!-- Additional Information -->
+                            <div class="mb-4">
+                                <h5>Additional Information</h5>
+                                {% bootstrap_field form.image %}
+                                {% bootstrap_field form.is_active %}
+                            </div>
+
+                            {% buttons %}
+                                <button class="boxed-btn3 w-100" type="submit">Save Changes</button>
+                            {% endbuttons %}
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% endblock body %} 

@@ -1,0 +1,204 @@
+{% extends 'base.html' %}
+{% load bootstrap4 %}
+
+{% block body %} 
+    <!-- bradcam_area  -->
+    <div class="bradcam_area bradcam_bg_1">
+        <div class="container">
+            <div class="row">
+                <div class="col-xl-12">
+                    <div class="bradcam_text">
+                        <h3>{{job}}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--/ bradcam_area  -->
+
+    <div class="job_details_area">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="job_details_header">
+                        <div class="single_jobs white-bg d-flex justify-content-between">
+                            <div class="jobs_left d-flex align-items-center">
+                                <div class="thumb" style="margin-right: 20px; width: 120px; height: 120px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                                    {% if job.image %}
+                                        <img src="{{ job.image.url }}" alt="{{ job.company_name }}" style="width: 100%; height: 100%; object-fit: contain;">
+                                    {% else %}
+                                        <div style="width: 100%; height: 100%; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center;">
+                                            <i class="fa fa-building" style="font-size: 45px; color: #999;"></i>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="jobs_conetent">
+                                    <a href="#"><h4>{{job}}</h4></a>
+                                    <div class="links_locat d-flex align-items-center">
+                                        <div class="location">
+                                            <p> <i class="fa fa-map-marker"></i> {{job.location}}</p>
+                                        </div>
+                                        <div class="location">
+                                            <p> <i class="fa fa-clock-o"></i> {{job.job_type}}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="jobs_right">
+                                <div class="apply_now">
+                                    {% if user.is_authenticated %}
+                                        <a class="heart_mark wishlist-btn" href="#" data-job-id="{{ job.id }}" data-csrf-token="{{ csrf_token }}">
+                                            <i class="ti-heart {% if job.id in user_saved_jobs %}text-danger{% endif %}"></i>
+                                        </a>
+                                    {% else %}
+                                        <a class="heart_mark" href="{% url 'accounts:login' %}">
+                                            <i class="ti-heart"></i>
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="descript_wrap white-bg">
+                        <div class="single_wrap">
+                            <h4>Job description</h4>
+                            <p>{{job.description}}</p>
+                        </div>
+                        {% if job.requirements %}
+                        <div class="single_wrap">
+                            <h4><i class="fa fa-check-circle" style="color: #28a745; margin-right: 10px;"></i>Job Requirements</h4>
+                            <p>{{job.requirements|linebreaks}}</p>
+                        </div>
+                        {% endif %}
+                        {% if job.responsibilities %}
+                        <div class="single_wrap">
+                            <h4><i class="fa fa-tasks" style="color: #007bff; margin-right: 10px;"></i>Job Responsibilities</h4>
+                            <p>{{job.responsibilities|linebreaks}}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% if user.is_authenticated and user.profile.user_type != 'company' %}
+                    <div class="apply_job_form white-bg">
+                        <h4>Apply for the job</h4>
+                        <form method="POST" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            {% bootstrap_form form1 %}
+                            {% buttons %}
+                                <button class="boxed-btn3 w-100" type="submit">Apply Now</button>
+                            {% endbuttons %}
+                        </form>
+                    </div>
+                    {% elif not user.is_authenticated %}
+                    <div class="apply_job_form white-bg">
+                        <h4>Apply for the job</h4>
+                        <p>Please <a href="{% url 'accounts:login' %}">login</a> or <a href="{% url 'accounts:register' %}">register</a> as a jobseeker to apply for this position.</p>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="col-lg-4">
+                    <div class="job_sumary">
+                        <div class="summery_header">
+                            <h3>Job Summery</h3>
+                        </div>
+                        <div class="job_content">
+                            <ul>
+                                <li>Published on: <span>{{job.published_at|date:'d M o'}}</span></li>
+                                <li>Vacancy: <span>{{job.vacancy}} Position</span></li>
+                                <li>Salary: <span>{{job.salary}} $</span></li>
+                                <li>Location: <span>{{job.location}}</span></li>
+                                <li>Job Nature: <span>{{job.job_type}}</span></li>
+                                {% if job.experience_min or job.experience_max %}
+                                <li>Experience: <span>{% if job.experience_min and job.experience_max %}{{job.experience_min}}-{{job.experience_max}} years{% elif job.experience_min %}{{job.experience_min}}+ years{% elif job.experience_max %}{{job.experience_max}} years max{% endif %}</span></li>
+                                {% endif %}
+                                {% if job.job_level %}
+                                <li>Level: <span>{{job.job_level}}</span></li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="share_wrap d-flex">
+                        <span>Share at:</span>
+                        <ul>
+                            <li><a href="#"> <i class="fa fa-facebook"></i></a> </li>
+                            <li><a href="#"> <i class="fa fa-google-plus"></i></a> </li>
+                            <li><a href="#"> <i class="fa fa-twitter"></i></a> </li>
+                            <li><a href="#"> <i class="fa fa-envelope"></i></a> </li>
+                        </ul>
+                    </div>
+                    <div class="job_location_wrap">
+                        <div class="job_lok_inner">
+                            <div id="map" style="height: 200px;"></div>
+                            <script>
+                              function initMap() {
+                                var uluru = {lat: -25.363, lng: 131.044};
+                                var grayStyles = [
+                                  {
+                                    featureType: "all",
+                                    stylers: [
+                                      { saturation: -90 },
+                                      { lightness: 50 }
+                                    ]
+                                  },
+                                  {elementType: 'labels.text.fill', stylers: [{color: '#ccdee9'}]}
+                                ];
+                                var map = new google.maps.Map(document.getElementById('map'), {
+                                  center: {lat: -31.197, lng: 150.744},
+                                  zoom: 9,
+                                  styles: grayStyles,
+                                  scrollwheel:  false
+                                });
+                              }
+                              
+                            </script>
+                           
+                          </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% endblock body %}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle wishlist button clicks
+            document.querySelectorAll('.wishlist-btn').forEach(function(btn) {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const jobId = this.getAttribute('data-job-id');
+                    const csrfToken = this.getAttribute('data-csrf-token');
+                    const heartIcon = this.querySelector('i');
+                    
+                    fetch(`/jobs/wishlist/toggle/${jobId}/`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrfToken,
+                            'Content-Type': 'application/json',
+                        },
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            // Toggle the heart icon appearance
+                            if (heartIcon.classList.contains('text-danger')) {
+                                heartIcon.classList.remove('text-danger');
+                            } else {
+                                heartIcon.classList.add('text-danger');
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+                });
+            });
+        });
+    </script>
+
+
+
+
+
+ 
