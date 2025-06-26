@@ -5,9 +5,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 local_settings.py
-db.sqlite3
+# db.sqlite3
 db.sqlite3-journal
-media/
+# media/
 staticfiles/
 .Python
 env/
@@ -51,8 +51,8 @@ eggs/
 *.sql
 *.sqlite
 *.log.*
-/static/
-/media/
+# /static/
+# /media/
 venv/
 .env
 .env.local
